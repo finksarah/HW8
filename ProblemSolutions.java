@@ -1,6 +1,6 @@
 /******************************************************************
  *
- *   ADD YOUR NAME / SECTION NUMBER HERE
+ *   Sarah Fink / 002
  *
  *   This java file contains the problem solutions of canFinish and
  *   numGroups methods.
@@ -72,18 +72,50 @@ class ProblemSolutions {
      * @return boolean          - True if all exams can be taken, else false.
      */
 
-    public boolean canFinish(int numExams, 
+    public boolean canFinish(int numExams,
                              int[][] prerequisites) {
-      
+
         int numNodes = numExams;  // # of nodes in graph
 
         // Build directed graph's adjacency list
-        ArrayList<Integer>[] adj = getAdjList(numExams, 
-                                        prerequisites); 
+        ArrayList<Integer>[] adj = getAdjList(numExams,
+                prerequisites);
 
         // ADD YOUR CODE HERE - ADD YOUR NAME / SECTION AT TOP OF FILE
-        return false;
+        // array tracking visit state: 0 = unvisited, 1 = visiting, 2 = visited
+        int[] visitState = new int[numNodes];
 
+        // DFS for each node
+        for (int i = 0; i < numNodes; i++) {
+            if (visitState[i] == 0) { // if unvisited, start DFS
+                Stack<Integer> stack = new Stack<>();
+                stack.push(i);
+
+                while (!stack.isEmpty()) {
+                    int current = stack.peek();
+
+                    if (visitState[current] == 0) { // is visiting
+                        visitState[current] = 1;
+
+                        // push all neighbors onto the stack
+                        for (int neighbor : adj[current]) {
+                            if (visitState[neighbor] == 0) {
+                                stack.push(neighbor);
+                            } else if (visitState[neighbor] == 1) {
+                                // cycle detected
+                                return false;
+                            }
+                        }
+                    } else {
+                        // has fully visited
+                        stack.pop();
+                        visitState[current] = 2;
+                    }
+                }
+            }
+        }
+
+        return true; // if no cycle is found
     }
 
 
@@ -101,8 +133,8 @@ class ProblemSolutions {
     private ArrayList<Integer>[] getAdjList(
             int numNodes, int[][] edges) {
 
-        ArrayList<Integer>[] adj 
-                    = new ArrayList[numNodes];      // Create an array of ArrayList ADT
+        ArrayList<Integer>[] adj
+                = new ArrayList[numNodes];      // Create an array of ArrayList ADT
 
         for (int node = 0; node < numNodes; node++){
             adj[node] = new ArrayList<Integer>();   // Allocate empty ArrayList per node
@@ -192,7 +224,31 @@ class ProblemSolutions {
 
         // YOUR CODE GOES HERE - you can add helper methods, you do not need
         // to put all code in this method.
-        return -1;
+        boolean[] visited = new boolean[numNodes];
+        int groupCount = 0;
+
+        // perform DFS without a separate method
+        for (int k = 0; k < numNodes; k++) {
+            if (!visited[k]) {
+                groupCount++;
+                Stack<Integer> stack = new Stack<>();
+                stack.push(k);
+
+                while (!stack.isEmpty()) {
+                    int current = stack.pop();
+                    if (!visited[current]) {
+                        visited[current] = true;
+                        for (int neighbor : graph.getOrDefault(current, new ArrayList<>())) {
+                            if (!visited[neighbor]) {
+                                stack.push(neighbor);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return groupCount;
     }
 
 }
